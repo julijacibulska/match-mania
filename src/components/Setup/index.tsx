@@ -1,6 +1,6 @@
 import { gameDifficulty, useGame } from "../../context/GameContext";
 
-export const Setup = () => {
+export const Setup = (): React.JSX.Element => {
   const { game, updateGame, toggleIsGameSetup } = useGame();
 
   const onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -10,6 +10,7 @@ export const Setup = () => {
   return (
     <div>
       <h1>Setup</h1>
+
       <h2>Choose your difficulty</h2>
 
       {Object.entries(gameDifficulty).map(([key, value]) => (

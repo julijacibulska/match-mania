@@ -1,8 +1,9 @@
 import { useGame } from "./context/GameContext";
 import { Setup } from "./components/Setup";
+import { Game } from "./components/Game";
 
-export function App() {
+export const App = () => {
   const { game } = useGame();
 
-  return game.isGameSetup ? <Setup /> : <div className="text-3xl">Hi</div>;
+  return !game.isGameSetup ? <Setup /> : <Game/>;
 }
