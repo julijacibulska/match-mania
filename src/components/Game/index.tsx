@@ -1,87 +1,52 @@
-import { useMemo, useReducer } from 'react';
-import { useGame } from '../../context/GameContext';
-import { shuffleArray } from '../../utils/shuffle-array';
+import { Card, useGame } from '../../state/game';
+import { useShallow } from 'zustand/react/shallow';
 
-const gameSetup = {
-  easy: { count: 12, columns: 4 },
-  medium: { count: 20, columns: 5 },
-  hard: { count: 30, columns: 6 },
+const gameColumns = {
+  easy: 'grid-cols-4',
+  medium: 'grid-cols-5',
+  hard: 'grid-cols-6',
 } as const;
 
-const availableCards = [
-  '🐶',
-  '🐱',
-  '🦊',
-  '🐷',
-  '🐸',
-  '🐨',
-  '🐼',
-  '🦁',
-  '🐭',
-  '🐻',
-  '🐯',
-  '🐰',
-  '🐮',
-  '🐹',
-  '🐻‍❄️',
-];
-
-enum ActionType {
-  SELECT_CARD = 'SELECT_CARD',
-  MATCH_CARD = 'MATCH_CARD',
-  RESET = 'RESET',
-}
-
-interface Action {
-  type: ActionType;
-  payload: any;
-}
-
-const generateCardSet = (cardCount: number) => {
-  const cardPairCount = cardCount / 2;
-  const possibleCards = availableCards.slice(0, cardPairCount);
-
-  const cards = shuffleArray([...possibleCards, ...possibleCards]);
-
-  return cards.map((card) => ({
-    content: card,
-    isSelected: false,
-    isMatched: false,
-  }));
-};
-
-const reducer = (state: any, action: Action) => {
-  switch (action.type) {
-    case ActionType.SELECT_CARD:
-      return {
-        ...state,
-      };
-    case ActionType.MATCH_CARD:
-      return { ...state };
-    case ActionType.RESET:
-      return generateCardSet(state.length - 1);
-  }
-};
-
 export const Game = (): React.JSX.Element => {
-  const { game } = useGame();
-
-  const [cards, dispatch] = useReducer(
-    reducer,
-    generateCardSet(gameSetup[game.difficulty].count),
+  const { difficulty, gameLayout, selectedCards, selectCard, reset } = useGame(
+    useShallow((state) => ({
+      difficulty: state.difficulty,
+      gameLayout: state.layout,
+      selectCard: state.selectCard,
+      selectedCards: state.selectedCardIndices,
+      reset: state.generateLayout,
+    })),
   );
 
   return (
-    <div
-      className={`grid grid-cols-${
-        gameSetup[game.difficulty].columns
-      } gap-4 grid-rows-auto`}
-    >
-      {cards.map((card) => (
-        <div className="text-7xl p-4 border rounded border-gray-200">
-          {card.content}
-        </div>
-      ))}
+    <div className="w-full p-4 flex flex-col items-center justify-center">
+      <div
+        className={`mb-4 grid ${gameColumns[difficulty]} gap-4 grid-rows-auto`}
+      >
+        {gameLayout?.map((card: Card, index: number) => (
+          <div
+            key={index}
+            className={`w-40 text-7xl text-center p-4 border rounded ${
+              (selectedCards as number[]).includes(index)
+                ? 'border-green-400'
+                : 'border-grey-100'
+            } cursor-pointer`}
+            onClick={() => selectCard(index)}
+          >
+            {card.isMatched || (selectedCards as number[]).includes(index)
+              ? card.content
+              : 'x'}
+          </div>
+        ))}
+      </div>
+      <div>
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={reset}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 };
