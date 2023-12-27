@@ -100,7 +100,7 @@ export type GameCardCount =
   (typeof gameDifficulty)[keyof typeof gameDifficulty];
 export type GameMode = keyof typeof gameDifficulty;
 
-const availableCards = [
+export const availableCards = [
   '🐶',
   '🐱',
   '🦊',
